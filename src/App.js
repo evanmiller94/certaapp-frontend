@@ -1,41 +1,94 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 function App() {
   const [form, setForm] = useState({ username: '', password: '' });
   const [message, setMessage] = useState('');
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true); // <--- new loading state
+
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+      setLoading(false);
+      return;
+    }
+
+    fetch('/api/me', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          setUser(data.username);
+        } else {
+          // Invalid token → clear localStorage
+          localStorage.removeItem('token');
+          localStorage.removeItem('username');
+        }
+        setLoading(false);
+      })
+      .catch(() => setLoading(false)); // Network or server error
+  }, []);
+
 
   const handleChange = e => {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-const handleSubmit = async e => {
-  e.preventDefault();
-  setMessage('');
+  const handleSubmit = async e => {
+    e.preventDefault();
+    setMessage('');
 
-  if (!form.username || !form.password) {
-    setMessage('Please fill in both fields.');
-    return;
-  }
-
-  try {
-    const res = await fetch('/api/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form)
-    });
-
-    const data = await res.json();
-
-    if (res.ok) {
-      setMessage(data.message);
-      // TODO: Save token or set login state here
-    } else {
-      setMessage(data.message || 'Login failed.');
+    if (!form.username || !form.password) {
+      setMessage('Please fill in both fields.');
+      return;
     }
-  } catch (error) {
-    setMessage('Network error: ' + error.message);
+
+      try {
+        const res = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(form)
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          // Save token & username in localStorage
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('username', form.username);
+          setUser(form.username);
+        } else {
+          setMessage(data.message);
+        }
+      } catch (err) {
+        setMessage('Network error: ' + err.message);
+      }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('username');
+    setUser(null);
+  };
+
+  if (loading) {
+    // Show nothing or a spinner while checking login
+    //return <div style={{ maxWidth: 320, margin: 'auto', padding: 20 }}>Loading...</div>;
+      return null; // blank screen while verifying token
   }
-};
+
+  if (user) {
+    return (
+      <div style={{ maxWidth: 320, margin: 'auto', padding: 20 }}>
+        <h2>Hello, {user}!</h2>
+        <button onClick={handleLogout} style={{ padding: 8 }}>
+          Logout
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div style={{ maxWidth: 320, margin: 'auto', padding: 20 }}>
