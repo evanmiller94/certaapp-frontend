@@ -1,121 +1,41 @@
-import React, { useState, useEffect } from 'react';
+import React from "react";
+import { useState, useEffect } from "react";
+import Dashboard from "./components/Dashboard/Dashboard";
+import Login from "./components/Login";
 
 function App() {
-  const [form, setForm] = useState({ username: '', password: '' });
-  const [message, setMessage] = useState('');
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true); // <--- new loading state
-
+  const [user, setUser] = useState(null); // logged-in username
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    // Check localStorage for token on page load
+    const token = localStorage.getItem("token");
+    const username = localStorage.getItem("username");
 
-    if (!token) {
-      setLoading(false);
-      return;
+    if (token && username) {
+      setUser(username);
     }
-
-    fetch('/api/me', {
-      headers: { 'Authorization': `Bearer ${token}` }
-    })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          setUser(data.username);
-        } else {
-          // Invalid token → clear localStorage
-          localStorage.removeItem('token');
-          localStorage.removeItem('username');
-        }
-        setLoading(false);
-      })
-      .catch(() => setLoading(false)); // Network or server error
+    setLoading(false);
   }, []);
 
-
-  const handleChange = e => {
-    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
-  };
-
-  const handleSubmit = async e => {
-    e.preventDefault();
-    setMessage('');
-
-    if (!form.username || !form.password) {
-      setMessage('Please fill in both fields.');
-      return;
-    }
-
-      try {
-        const res = await fetch('/api/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(form)
-        });
-
-        const data = await res.json();
-        if (res.ok) {
-          // Save token & username in localStorage
-          localStorage.setItem('token', data.token);
-          localStorage.setItem('username', form.username);
-          setUser(form.username);
-        } else {
-          setMessage(data.message);
-        }
-      } catch (err) {
-        setMessage('Network error: ' + err.message);
-      }
-  };
-
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('username');
+    localStorage.removeItem("token");
+    localStorage.removeItem("username");
     setUser(null);
   };
 
   if (loading) {
-    // Show nothing or a spinner while checking login
-    //return <div style={{ maxWidth: 320, margin: 'auto', padding: 20 }}>Loading...</div>;
-      return null; // blank screen while verifying token
+    // Keep screen blank while checking token
+    return null;
   }
 
   if (user) {
-    return (
-      <div style={{ maxWidth: 320, margin: 'auto', padding: 20 }}>
-        <h2>Hello, {user}!</h2>
-        <button onClick={handleLogout} style={{ padding: 8 }}>
-          Logout
-        </button>
-      </div>
-    );
+    // Logged-in dashboard
+    return <Dashboard username={user} onLogout={handleLogout} />;
   }
 
-  return (
-    <div style={{ maxWidth: 320, margin: 'auto', padding: 20 }}>
-      <h2>Login</h2>
-      <form onSubmit={handleSubmit}>
-        <input
-          name="username"
-          placeholder="Username"
-          value={form.username}
-          onChange={handleChange}
-          style={{ width: '100%', marginBottom: 8, padding: 8 }}
-        />
-        <input
-          name="password"
-          type="password"
-          placeholder="Password"
-          value={form.password}
-          onChange={handleChange}
-          style={{ width: '100%', marginBottom: 8, padding: 8 }}
-        />
-        <button type="submit" style={{ width: '100%', padding: 8 }}>
-          Log In
-        </button>
-      </form>
-      {message && <p>{message}</p>}
-    </div>
-  );
+  // Login form
+  return <Login setUser={setUser} />;
 }
 
 export default App;
