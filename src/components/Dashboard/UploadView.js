@@ -32,11 +32,9 @@ function UploadView({ onUpload }) {
         method: "POST",
         body: formData,
       });
-      console.log(response.ok);
 
       if (response.ok) {
         const uploadedCustomers = await response.json(); // Expect backend to send parsed list
-        console.log("Received from backend:", uploadedCustomers); // <-- log response
 
         setStatus("Upload successful!");
         if (onUpload) onUpload(uploadedCustomers);

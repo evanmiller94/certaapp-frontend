@@ -7,45 +7,39 @@ function CustomerListView({ customers }) {
   // Will change up this view, just temp placeholder of return data for testing
   if (!customers.length) return <p>No customers uploaded yet.</p>;
 
-  const tableStyle = {
-    width: "100%",
-    borderCollapse: "collapse",
-    fontSize: "0.85rem",
-  };
-
-  const thTdStyle = {
-    border: "1px solid #ccc",
-    padding: "4px 8px",
-    textAlign: "left",
-  };
-
   return (
-    <table style={tableStyle}>
-      <thead>
-        <tr>
-          <th style={thTdStyle}>Occupant</th>
-          <th style={thTdStyle}>Occupant Email</th>
-          <th style={thTdStyle}>Occupant Phone</th>
-          <th style={thTdStyle}>Owner</th>
-          <th style={thTdStyle}>Property</th>
-          <th style={thTdStyle}>Phone</th>
-          <th style={thTdStyle}>Email</th>
-        </tr>
-      </thead>
-      <tbody>
-        {customers.map((c, i) => (
-          <tr key={i}>
-            <td style={thTdStyle}>{c.occupant}</td>
-            <td style={thTdStyle}>{c.occupantEmail}</td>
-            <td style={thTdStyle}>{c.occupantPhone}</td>
-            <td style={thTdStyle}>{c.owner}</td>
-            <td style={thTdStyle}>{c.property}</td>
-            <td style={thTdStyle}>{c.phone}</td>
-            <td style={thTdStyle}>{c.email}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
+    <div>
+      {customers.map((cust, index) => {
+        return (
+          <div
+            key={index}
+            style={{
+              border: "1px solid #ccc",
+              padding: 10,
+              marginBottom: 8,
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <div>
+              <strong>{cust.displayName}</strong> — {cust.property}
+            </div>
+            <button
+              onClick={() => {
+                // For now just console.log, later hook up email/text
+                alert(
+                  "Send communication to: " + cust.email + "\n" + cust.phone
+                );
+              }}
+              style={{ padding: "6px 12px" }}
+            >
+              Send communication
+            </button>
+          </div>
+        );
+      })}
+    </div>
   );
 }
 
