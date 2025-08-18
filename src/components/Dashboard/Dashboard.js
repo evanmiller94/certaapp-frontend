@@ -9,6 +9,10 @@ function Dashboard({ username, onLogout }) {
   const [activeTab, setActiveTab] = useState("upload"); // 'upload' or 'customers'
   const [customers, setCustomers] = useState([]);
 
+  // Persisted UI states for CustomerListView
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortKey, setSortKey] = useState("name");
+
   //
   // TODO: This will not be necessary since the customer
   // list view will just pull from DB each time
@@ -17,6 +21,11 @@ function Dashboard({ username, onLogout }) {
   const handleUploadComplete = (uploadedCustomers) => {
     setCustomers(uploadedCustomers || []); // store them
     setActiveTab("customers"); // show list
+  };
+
+  const handleSortChange = (newSortKey) => {
+    setSortKey(newSortKey);
+    setSearchTerm(""); // reset search
   };
 
   return (
@@ -34,7 +43,13 @@ function Dashboard({ username, onLogout }) {
           <UploadView onUpload={handleUploadComplete} />
         )}
         {activeTab === "customers" && (
-          <CustomerListView customers={customers} />
+          <CustomerListView
+            customers={customers}
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            sortKey={sortKey}
+            onSortChange={handleSortChange}
+          />
         )}
       </main>
     </div>
