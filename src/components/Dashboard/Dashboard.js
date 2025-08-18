@@ -1,12 +1,12 @@
 import React from "react";
 import { useState } from "react";
 import PropTypes from "prop-types";
+import { Routes, Route, Navigate } from "react-router-dom";
 import UploadView from "./UploadView";
 import CustomerListView from "./CustomerListView";
 import NavBar from "../NavBar";
 
 function Dashboard({ username, onLogout }) {
-  const [activeTab, setActiveTab] = useState("upload"); // 'upload' or 'customers'
   const [customers, setCustomers] = useState([]);
 
   // Persisted UI states for CustomerListView
@@ -19,8 +19,7 @@ function Dashboard({ username, onLogout }) {
   //
   // Receives the new customers from UploadView
   const handleUploadComplete = (uploadedCustomers) => {
-    setCustomers(uploadedCustomers || []); // store them
-    setActiveTab("customers"); // show list
+    setCustomers(uploadedCustomers || []);
   };
 
   const handleSortChange = (newSortKey) => {
@@ -30,27 +29,28 @@ function Dashboard({ username, onLogout }) {
 
   return (
     <div style={{ maxWidth: 800, margin: "auto", padding: 20 }}>
-      <NavBar
-        username={username}
-        onLogout={onLogout}
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-      />
+      <NavBar username={username} onLogout={onLogout} />
 
-      {/* Content */}
       <main style={{ border: "1px solid #ddd", padding: 20 }}>
-        {activeTab === "upload" && (
-          <UploadView onUpload={handleUploadComplete} />
-        )}
-        {activeTab === "customers" && (
-          <CustomerListView
-            customers={customers}
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
-            sortKey={sortKey}
-            onSortChange={handleSortChange}
+        <Routes>
+          <Route
+            path="/upload"
+            element={<UploadView onUpload={handleUploadComplete} />}
           />
-        )}
+          <Route
+            path="/customers"
+            element={
+              <CustomerListView
+                customers={customers}
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+                sortKey={sortKey}
+                onSortChange={handleSortChange}
+              />
+            }
+          />
+          <Route path="/" element={<Navigate to="/customers" />} />
+        </Routes>
       </main>
     </div>
   );

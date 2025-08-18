@@ -1,5 +1,6 @@
 import React from "react";
 import { useState, useEffect } from "react";
+import { BrowserRouter as Router } from "react-router-dom";
 import Dashboard from "./components/Dashboard/Dashboard";
 import Login from "./components/Login";
 
@@ -29,13 +30,15 @@ function App() {
     return null;
   }
 
-  if (user) {
-    // Logged-in dashboard
-    return <Dashboard username={user} onLogout={handleLogout} />;
+  if (!user) {
+    return <Login setUser={setUser} />;
   }
 
-  // Login form
-  return <Login setUser={setUser} />;
+  return (
+    <Router>
+      <Dashboard username={user} onLogout={handleLogout} />
+    </Router>
+  );
 }
 
 export default App;

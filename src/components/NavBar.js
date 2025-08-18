@@ -1,7 +1,13 @@
 import React from "react";
+import { Link, useLocation } from "react-router-dom";
 import PropTypes from "prop-types";
 
-function NavBar({ username, onLogout, activeTab, setActiveTab }) {
+function NavBar({ username, onLogout }) {
+  const location = useLocation();
+  const activeTab = location.pathname.includes("upload")
+    ? "upload"
+    : "customers";
+
   return (
     <>
       <header
@@ -19,26 +25,32 @@ function NavBar({ username, onLogout, activeTab, setActiveTab }) {
 
       {/* Tabs */}
       <nav style={{ display: "flex", marginBottom: 20 }}>
-        <button
+        <Link
+          to="/upload"
           style={{
             flex: 1,
             padding: 10,
             backgroundColor: activeTab === "upload" ? "#ccc" : "#eee",
+            textAlign: "center",
+            textDecoration: "none",
+            color: "black",
           }}
-          onClick={() => setActiveTab("upload")}
         >
           Upload Excel
-        </button>
-        <button
+        </Link>
+        <Link
+          to="/customers"
           style={{
             flex: 1,
             padding: 10,
             backgroundColor: activeTab === "customers" ? "#ccc" : "#eee",
+            textAlign: "center",
+            textDecoration: "none",
+            color: "black",
           }}
-          onClick={() => setActiveTab("customers")}
         >
           Customer List
-        </button>
+        </Link>
       </nav>
     </>
   );
@@ -47,8 +59,6 @@ function NavBar({ username, onLogout, activeTab, setActiveTab }) {
 NavBar.propTypes = {
   username: PropTypes.string.isRequired,
   onLogout: PropTypes.func.isRequired,
-  activeTab: PropTypes.string.isRequired,
-  setActiveTab: PropTypes.func.isRequired,
 };
 
 export default NavBar;
